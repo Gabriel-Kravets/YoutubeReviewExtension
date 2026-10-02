@@ -22,7 +22,7 @@
 
         const header = createElement("header", "yr-header");
         const brand = createElement("div", "yr-brand");
-        brand.append(createElement("span", "yr-logo", "Y"), createElement("span", "yr-brand-name", "Preview"));
+        brand.append(createElement("span", "yr-logo", "S"), createElement("span", "yr-brand-name", "SpoilIt"));
         const status = createElement("span", "yr-status", "Ready");
         status.dataset.role = "status";
         header.append(brand, status);

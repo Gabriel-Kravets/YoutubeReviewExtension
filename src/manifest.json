@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Review — Interface",
+  "name": "SpoilIt — Interface",
   "version": "0.2.0",
-  "description": "A polished AI review panel displayed beside YouTube videos.",
+  "description": "A polished spoiler report displayed beside YouTube videos.",
   "action": {
     "default_popup": "popup.html"
   },
