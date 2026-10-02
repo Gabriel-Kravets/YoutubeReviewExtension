@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Review — Transcribed OpenAI Analysis",
+  "name": "SpoilIt — Transcribed OpenAI Analysis",
   "version": "0.3.0",
-  "description": "Transcribes YouTube videos and creates concise, structured reports with OpenAI.",
+  "description": "Transcribes YouTube videos and reveals the answer, key points, verdict, and clickbait check.",
   "action": {
     "default_popup": "popup.html"
   },
