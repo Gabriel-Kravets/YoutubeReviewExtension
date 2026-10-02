@@ -6,8 +6,9 @@ Thumbnail previews work across YouTube Home, Search, Subscriptions, Shorts shelv
 
 - a direct answer describing what the video is really about;
 - up to three specific takeaways;
-- a clickbait probability;
-- a link to open the video for the complete report.
+- a clickbait probability.
+
+When a viewer opens the same video after using its thumbnail spoiler, Spoil It automatically restores that exact cached result in the watch-page panel. Videos without a matching cached result keep the normal manual analysis button.
 
 The full watch-page report combines the transcript, metadata, thumbnail, and up to 50 relevant comments and replies to show:
 

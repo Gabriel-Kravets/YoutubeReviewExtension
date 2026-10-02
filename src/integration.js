@@ -73,13 +73,33 @@
 
     async function loadCachedReport(context) {
         if (!context?.videoId) {
-            return;
+            return false;
         }
-        const key = `report:v2:${context.videoId}`;
-        const stored = await chrome.storage.local.get(key);
-        if (stored[key]?.report) {
-            globalThis.YouTubeReviewPanel?.renderReport(stored[key].report, context);
+        const fullKey = `report:v2:${context.videoId}`;
+        const thumbnailKey = `thumbnail-report:v3:${context.videoId}`;
+        const stored = await chrome.storage.local.get([fullKey, thumbnailKey]);
+        const cached = stored[fullKey]?.report
+            ? stored[fullKey]
+            : stored[thumbnailKey]?.report
+                ? stored[thumbnailKey]
+                : null;
+
+        if (!cached?.report || cached.context?.videoId !== context.videoId) {
+            return false;
         }
+
+        for (let attempt = 0; attempt < 24; attempt += 1) {
+            const current = globalThis.YouTubeReviewIntegration?.getVideoContext();
+            if (current?.videoId !== context.videoId) {
+                return false;
+            }
+            if (globalThis.YouTubeReviewPanel?.mount()) {
+                globalThis.YouTubeReviewPanel.renderReport(cached.report, {...cached.context, ...context});
+                return true;
+            }
+            await wait(250);
+        }
+        return false;
     }
 
     async function analyze() {
