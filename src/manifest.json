@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SpoilIt",
+  "name": "Spoil It",
   "version": "0.4.0",
   "description": "Spoil any YouTube video with a concise answer, key points, verdict, and clickbait check.",
   "action": {

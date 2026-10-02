@@ -22,33 +22,30 @@
 
         const header = createElement("header", "yr-header");
         const brand = createElement("div", "yr-brand");
-        brand.append(createElement("span", "yr-logo", "S"), createElement("span", "yr-brand-name", "SpoilIt"));
+        brand.append(createElement("span", "yr-brand-name", "Spoil It"));
         const status = createElement("span", "yr-status", "Ready");
         status.dataset.role = "status";
         header.append(brand, status);
 
         const hero = createElement("section", "yr-hero");
         hero.innerHTML = `
-            <div class="yr-kicker">AI video briefing</div>
-            <h2>Know before you watch.</h2>
-            <p>See what the video actually covers and how viewers reacted—without the noise.</p>
+            <h2>Watch with confidence.</h2>
+            <p>See exactly what happens before you spend time watching.</p>
         `;
 
-        const action = createElement("button", "yr-analyze", "Analyze this video");
+        const action = createElement("button", "yr-analyze", "Spoil this video");
         action.type = "button";
         action.dataset.role = "analyze";
         action.addEventListener("click", () => {
             document.dispatchEvent(new CustomEvent("youtube-review:analyze"));
         });
 
-        const disclosure = createElement("p", "yr-disclosure", "Audio is transcribed first; the transcript, thumbnail, metadata, and comments are analyzed by OpenAI.");
-
         const loading = createElement("section", "yr-loading");
         loading.dataset.role = "loading";
         loading.setAttribute("aria-live", "polite");
         loading.innerHTML = `
             <div class="yr-orbit"><span></span></div>
-            <div><strong>Watching at light speed</strong><p data-role="loading-message">Reading the video and viewer reactions…</p></div>
+            <div><strong>Getting the details</strong><p data-role="loading-message">Reading the video and viewer reactions…</p></div>
         `;
 
         const report = createElement("section", "yr-report");
@@ -56,46 +53,45 @@
         report.innerHTML = `
             <div class="yr-media">
                 <img data-role="thumbnail" alt="Video thumbnail">
-                <div class="yr-media-overlay"><span data-role="source-label">AI video briefing</span></div>
+                <div class="yr-media-overlay">
+                    <span class="yr-spoiler-badge">Full spoiler</span>
+                    <h2 data-role="video-title"></h2>
+                </div>
             </div>
             <div class="yr-report-body">
-                <div class="yr-section-label">What it’s really about</div>
-                <p class="yr-summary" data-role="summary"></p>
-
-                <div class="yr-score-grid">
-                    <article class="yr-score-card yr-clickbait">
-                        <span>Clickbait probability</span>
-                        <strong data-role="clickbait-score">—</strong>
-                        <div class="yr-meter"><i data-role="clickbait-meter"></i></div>
-                        <p data-role="clickbait-reason"></p>
-                    </article>
-                    <article class="yr-score-card">
-                        <span>Viewer mood</span>
-                        <strong data-role="sentiment-label">—</strong>
-                        <div class="yr-sentiment-bar" data-role="sentiment-bar"></div>
-                        <p data-role="sentiment-detail"></p>
-                    </article>
-                </div>
-
-                <section class="yr-report-section">
-                    <div class="yr-section-label">Recurring themes</div>
-                    <div class="yr-chips" data-role="themes"></div>
+                <section class="yr-answer-card">
+                    <div class="yr-section-label">The answer</div>
+                    <p class="yr-summary" data-role="summary"></p>
                 </section>
 
-                <section class="yr-report-section">
-                    <div class="yr-section-label">The useful bits</div>
+                <section class="yr-detail-card">
+                    <div class="yr-section-label">Key points</div>
                     <ul class="yr-takeaways" data-role="takeaways"></ul>
                 </section>
 
-                <section class="yr-quote-card">
-                    <span>Viewer consensus</span>
-                    <p data-role="consensus"></p>
+                <section class="yr-detail-card yr-verdict-card">
+                    <div class="yr-section-label">Ending / verdict</div>
+                    <ul class="yr-verdict" data-role="spoilers"></ul>
                 </section>
 
-                <details class="yr-spoilers">
-                    <summary>Spoilers & key reveals <span>Open</span></summary>
-                    <ul data-role="spoilers"></ul>
-                </details>
+                <section class="yr-detail-card yr-clickbait-card">
+                    <div class="yr-card-heading">
+                        <div class="yr-section-label">Clickbait check</div>
+                        <strong data-role="clickbait-score">—</strong>
+                    </div>
+                    <div class="yr-meter"><i data-role="clickbait-meter"></i></div>
+                    <p data-role="clickbait-reason"></p>
+                </section>
+
+                <section class="yr-viewer-card">
+                    <div class="yr-card-heading">
+                        <div class="yr-section-label">Viewer reaction</div>
+                        <strong data-role="sentiment-label">—</strong>
+                    </div>
+                    <div class="yr-sentiment-bar" data-role="sentiment-bar"></div>
+                    <p data-role="sentiment-detail"></p>
+                    <p class="yr-consensus" data-role="consensus"></p>
+                </section>
             </div>
         `;
 
@@ -108,9 +104,9 @@
         const settings = createElement("button", "yr-settings", "Settings");
         settings.type = "button";
         settings.addEventListener("click", () => document.dispatchEvent(new CustomEvent("youtube-review:settings")));
-        footer.append(createElement("span", "", "Analysis by OpenAI"), settings);
+        footer.append(settings);
 
-        panel.append(header, hero, action, disclosure, loading, report, error, footer);
+        panel.append(header, hero, action, loading, report, error, footer);
         return panel;
     }
 
@@ -145,7 +141,7 @@
             return;
         }
         panel.dataset.state = state;
-        const labels = {ready: "Ready", loading: "Analyzing", report: "Complete", error: "Needs attention"};
+        const labels = {ready: "Ready", loading: "Working", report: "Spoiled", error: "Try again"};
         panel.querySelector('[data-role="status"]').textContent = labels[state] || "Ready";
         if (message) {
             const destination = panel.querySelector(state === "error" ? '[data-role="error-message"]' : '[data-role="loading-message"]');
@@ -175,7 +171,7 @@
         const sentiment = report.sentiment || {};
 
         panel.querySelector('[data-role="thumbnail"]').src = context.thumbnailUrl || "";
-        setText("source-label", context.title || "AI video briefing");
+        setText("video-title", context.title || "YouTube video");
         setText("summary", report.summary);
         setText("clickbait-score", `${clickbait}%`);
         panel.querySelector('[data-role="clickbait-meter"]').style.width = `${clickbait}%`;
@@ -184,12 +180,6 @@
         setText("sentiment-detail", `${sentiment.positive || 0}% positive · ${sentiment.neutral || 0}% neutral · ${sentiment.negative || 0}% negative`);
         panel.querySelector('[data-role="sentiment-bar"]').style.setProperty("--positive", `${sentiment.positive || 0}%`);
         panel.querySelector('[data-role="sentiment-bar"]').style.setProperty("--neutral", `${sentiment.neutral || 0}%`);
-
-        const themes = panel.querySelector('[data-role="themes"]');
-        themes.replaceChildren();
-        for (const theme of report.recurringThemes || []) {
-            themes.append(createElement("span", "", theme));
-        }
 
         fillList(panel.querySelector('[data-role="takeaways"]'), report.keyTakeaways);
         setText("consensus", report.viewerConsensus);

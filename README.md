@@ -1,6 +1,6 @@
-# SpoilIt
+# Spoil It
 
-SpoilIt is a Chrome extension that tells viewers exactly what happens in a YouTube video. It combines the transcript, metadata, thumbnail, and up to 50 relevant comments and replies to show:
+Spoil It is a Chrome extension that tells viewers exactly what happens in a YouTube video. It combines the transcript, metadata, thumbnail, and up to 50 relevant comments and replies to show:
 
 - what the video is actually about;
 - clickbait probability;
