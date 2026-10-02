@@ -1,7 +1,7 @@
 "use strict";
 
-export const GEMINI_MODEL = "gemini-3.8-flash";
-const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/interactions";
+export const OPENAI_MODEL = "gpt-6-luna";
+const OPENAI_ENDPOINT = "https://api.openai.com/v1/responses";
 
 function clamp(value, minimum, maximum) {
     return Math.max(minimum, Math.min(maximum, Number(value) || 0));
@@ -13,7 +13,7 @@ function cleanArray(value, maximum) {
         : [];
 }
 
-export function buildPrompt({context, comments = []}) {
+export function buildPrompt({context, comments = [], transcript}) {
     const commentPayload = comments.slice(0, 50).map((comment) => ({
         author: comment.author,
         text: String(comment.text || "").slice(0, 1200),
@@ -21,9 +21,9 @@ export function buildPrompt({context, comments = []}) {
         isReply: !!comment.isReply
     }));
 
-    return `You are an expert video analyst. Analyze the supplied public YouTube video together with its metadata and viewer comments.
+    return `Create a concise, honest YouTube briefing from the supplied transcript, metadata, thumbnail, and viewer comments.
 
-The user wants a fast, honest briefing that reveals what the video actually contains. Be concise and specific. Compare the title and thumbnail promise with the actual video to estimate clickbait. Treat comments as viewer reactions, not ground truth. Do not repeat promotional wording. Mention uncertainty when evidence is limited.
+Evidence limits: the transcript represents the spoken audio but may contain speech-recognition errors and does not fully describe visual-only events. Treat the title, description, and thumbnail as creator-supplied claims. Treat comments as reactions, not ground truth. Estimate clickbait by comparing the title and thumbnail promise with the transcript and viewer reactions.
 
 Video metadata:
 ${JSON.stringify({
@@ -31,22 +31,25 @@ ${JSON.stringify({
         channel: context.channel,
         description: context.description,
         durationSeconds: context.durationSeconds,
-        thumbnailUrl: context.thumbnailUrl
+        captionsDetected: context.captionsDetected
     })}
 
 Viewer comments:
 ${JSON.stringify(commentPayload)}
 
+Video transcript (${transcript?.language || "unknown language"}):
+${String(transcript?.text || "No transcript was available.").slice(0, 120000)}
+
 Return only valid JSON matching this exact structure:
 {
-  "summary": "Two or three short sentences explaining what the video is really about.",
+  "summary": "Two or three short sentences explaining what the available evidence says the video covers.",
   "clickbaitProbability": {"score": 0, "reason": "One short sentence."},
   "sentiment": {"positive": 0, "neutral": 0, "negative": 0, "label": "Positive|Mixed|Neutral|Negative"},
   "recurringThemes": ["Up to five short themes"],
   "keyTakeaways": ["Three to five useful points or claims"],
   "viewerConsensus": "One or two concise sentences.",
-  "spoilers": ["Up to four important reveals or conclusions"],
-  "confidence": {"score": 0, "reason": "One short sentence."}
+  "spoilers": ["Up to four important reveals or conclusions supported by the evidence"],
+  "confidence": {"score": 0, "reason": "Mention transcript coverage and any evidence limits."}
 }
 
 Scores are integers from 0 to 100. Sentiment percentages must total 100. Do not include markdown or text outside the JSON.`;
@@ -56,24 +59,11 @@ export function extractResponseText(payload) {
     if (typeof payload?.output_text === "string") {
         return payload.output_text;
     }
-    if (typeof payload?.outputText === "string") {
-        return payload.outputText;
-    }
-
-    const outputText = payload?.outputs
-        ?.flatMap((output) => output?.content?.parts || output?.parts || [])
+    return (payload?.output || [])
+        .flatMap((item) => item?.content || [])
         .map((part) => part?.text)
         .filter(Boolean)
         .join("");
-    if (outputText) {
-        return outputText;
-    }
-
-    return payload?.candidates
-        ?.flatMap((candidate) => candidate?.content?.parts || [])
-        .map((part) => part?.text)
-        .filter(Boolean)
-        .join("") || "";
 }
 
 export function parseReport(text) {
@@ -105,50 +95,44 @@ export function parseReport(text) {
         spoilers: cleanArray(parsed.spoilers, 4),
         confidence: {
             score: Math.round(clamp(parsed.confidence?.score, 0, 100)),
-            reason: String(parsed.confidence?.reason || "").trim()
+            reason: String(parsed.confidence?.reason || "Based on the transcript, metadata, thumbnail, and comments.").trim()
         }
     };
 }
 
-export async function analyzeVideo({apiKey, context, comments}) {
+export async function analyzeVideo({apiKey, context, comments, transcript}) {
     if (!apiKey) {
-        throw new Error("Add a Gemini API key in the extension settings first.");
-    }
-    if (!context?.url) {
-        throw new Error("A public YouTube video URL is required.");
+        throw new Error("Add an OpenAI API key in the extension settings first.");
     }
 
-    const response = await fetch(GEMINI_ENDPOINT, {
+    const content = [{type: "input_text", text: buildPrompt({context, comments, transcript})}];
+    if (context?.thumbnailUrl) {
+        content.push({type: "input_image", image_url: context.thumbnailUrl, detail: "low"});
+    }
+
+    const response = await fetch(OPENAI_ENDPOINT, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "x-goog-api-key": apiKey
+            "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            model: GEMINI_MODEL,
-            input: [
-                {
-                    type: "video",
-                    uri: context.url,
-                    processing: "agentic"
-                },
-                {
-                    type: "text",
-                    text: buildPrompt({context, comments})
-                }
-            ]
+            model: OPENAI_MODEL,
+            reasoning: {effort: "low"},
+            input: [{role: "user", content}],
+            max_output_tokens: 1800
         })
     });
 
     const payload = await response.json();
     if (!response.ok) {
-        const message = payload?.error?.message || `Gemini request failed (${response.status}).`;
+        const message = payload?.error?.message || `OpenAI request failed (${response.status}).`;
         throw new Error(message);
     }
 
     const text = extractResponseText(payload);
     if (!text) {
-        throw new Error("Gemini returned an empty analysis.");
+        throw new Error("OpenAI returned an empty analysis.");
     }
     return parseReport(text);
 }

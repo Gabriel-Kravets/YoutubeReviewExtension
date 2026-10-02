@@ -14,14 +14,14 @@ The report appears at the top of YouTube's right-hand recommendations column and
 1. Open `chrome://extensions`.
 2. Turn on **Developer mode**.
 3. Choose **Load unpacked** and select the `src` folder from this branch.
-4. Open the extension settings and add a YouTube Data API key and a Gemini API key.
+4. Open the extension settings and add YouTube Data API, Supadata, and OpenAI API keys.
 5. Open a public YouTube video and click **Analyze this video**.
 
-The YouTube key must have YouTube Data API v3 enabled. The Gemini key can be created in Google AI Studio. Keys are stored only in the current Chrome profile.
+The YouTube key must have YouTube Data API v3 enabled. Supadata retrieves native captions and falls back to generated speech-to-text when captions are missing. OpenAI turns the transcript and other evidence into the final briefing. Keys are stored only in the current Chrome profile.
 
 ## Privacy and cost behavior
 
-Analysis starts only after the user clicks the button. The public video URL, metadata, and fetched comments are sent to Gemini. Completed reports are cached locally per video, but clicking Analyze again requests a fresh report and may incur API usage.
+Analysis starts only after the user clicks the button. Supadata processes the public video URL for transcription; the resulting transcript, thumbnail, metadata, and fetched comments are sent to OpenAI. Transcripts and completed reports are cached locally per video to avoid duplicate requests.
 
 For a public release, API calls and keys should be moved to a secure backend rather than distributed to extension users.
 
@@ -29,7 +29,7 @@ For a public release, API calls and keys should be moved to a secure backend rat
 
 - `comment-scraper`: YouTube comments and replies
 - `youtube-integration`: video context and navigation handling
-- `ai-model-analysis`: Gemini analysis pipeline
+- `ai-model-analysis`: OpenAI analysis pipeline
 - `extension-ui`: right-side report panel
 - `dev`: integrated testing branch
 - `main`: stable release branch

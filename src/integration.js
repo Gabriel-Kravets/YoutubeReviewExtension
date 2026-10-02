@@ -26,8 +26,9 @@
 
     function startLoadingMessages() {
         const messages = [
+            "Finding captions or generating a transcript from the audio…",
             "Collecting the most relevant comments and replies…",
-            "Gemini is reviewing the video, title, and thumbnail…",
+            "OpenAI is reviewing the transcript, thumbnail, and reactions…",
             "Comparing the creator’s claims with viewer reactions…",
             "Turning the evidence into a concise briefing…"
         ];
@@ -37,6 +38,37 @@
             index = Math.min(index + 1, messages.length - 1);
             globalThis.YouTubeReviewPanel?.setState("loading", messages[index]);
         }, 5000);
+    }
+
+    function wait(milliseconds) {
+        return new Promise((resolve) => setTimeout(resolve, milliseconds));
+    }
+
+    async function getTranscript(context) {
+        let response = await sendMessage({type: "START_TRANSCRIPT", context});
+        if (!response?.ok) {
+            throw new Error(response?.error || "The video could not be transcribed.");
+        }
+        if (response.status === "completed") {
+            return response.transcript;
+        }
+
+        const deadline = Date.now() + 10 * 60 * 1000;
+        while (Date.now() < deadline) {
+            await wait(2000);
+            response = await sendMessage({
+                type: "CHECK_TRANSCRIPT",
+                jobId: response.jobId,
+                videoId: context.videoId
+            });
+            if (!response?.ok) {
+                throw new Error(response?.error || "The video could not be transcribed.");
+            }
+            if (response.status === "completed") {
+                return response.transcript;
+            }
+        }
+        throw new Error("Transcription is taking longer than expected. Please try again later.");
     }
 
     async function loadCachedReport(context) {
@@ -60,7 +92,11 @@
         stopLoadingMessages();
         startLoadingMessages();
         try {
-            const response = await sendMessage({type: "ANALYZE_VIDEO", context});
+            const transcript = await getTranscript(context);
+            const response = await sendMessage({
+                type: "ANALYZE_VIDEO",
+                context: {...context, transcript}
+            });
             if (!response?.ok) {
                 throw new Error(response?.error || "The analysis could not be completed.");
             }

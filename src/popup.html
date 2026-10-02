@@ -23,10 +23,18 @@
     </section>
 
     <section>
-        <label for="gemini-key">Gemini API key</label>
+        <label for="openai-key">OpenAI API key</label>
         <div class="key-row">
-            <input id="gemini-key" type="password" autocomplete="off" spellcheck="false" placeholder="Used for video analysis">
-            <button class="toggle" type="button" data-target="gemini-key">Show</button>
+            <input id="openai-key" type="password" autocomplete="off" spellcheck="false" placeholder="Used for AI analysis">
+            <button class="toggle" type="button" data-target="openai-key">Show</button>
+        </div>
+    </section>
+
+    <section>
+        <label for="supadata-key">Supadata transcription API key</label>
+        <div class="key-row">
+            <input id="supadata-key" type="password" autocomplete="off" spellcheck="false" placeholder="Used for captions and speech-to-text">
+            <button class="toggle" type="button" data-target="supadata-key">Show</button>
         </div>
     </section>
 
@@ -35,7 +43,7 @@
 
     <aside>
         <strong>Prototype privacy</strong>
-        <p>When you select Analyze, the public video URL, metadata, and up to 50 comments are sent to Gemini. A production release will use a secure backend.</p>
+        <p>Supadata retrieves captions or transcribes the spoken audio. The transcript, thumbnail, metadata, and up to 50 comments are then sent to OpenAI.</p>
     </aside>
 </main>
 <script src="popup.js"></script>

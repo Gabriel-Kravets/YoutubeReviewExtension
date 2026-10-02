@@ -22,7 +22,8 @@
     "https://www.youtube.com/*",
     "https://youtu.be/*",
     "https://www.googleapis.com/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://api.openai.com/*",
+    "https://api.supadata.ai/*"
   ],
   "content_scripts": [
     {

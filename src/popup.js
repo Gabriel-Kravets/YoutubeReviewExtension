@@ -1,13 +1,15 @@
 "use strict";
 
 const youtubeKeyInput = document.getElementById("youtube-key");
-const geminiKeyInput = document.getElementById("gemini-key");
+const openaiKeyInput = document.getElementById("openai-key");
+const supadataKeyInput = document.getElementById("supadata-key");
 const saveButton = document.getElementById("save");
 const statusElement = document.getElementById("status");
 
-chrome.storage.local.get(["youtubeApiKey", "geminiApiKey"], ({youtubeApiKey, geminiApiKey}) => {
+chrome.storage.local.get(["youtubeApiKey", "openaiApiKey", "supadataApiKey"], ({youtubeApiKey, openaiApiKey, supadataApiKey}) => {
     youtubeKeyInput.value = typeof youtubeApiKey === "string" ? youtubeApiKey : "";
-    geminiKeyInput.value = typeof geminiApiKey === "string" ? geminiApiKey : "";
+    openaiKeyInput.value = typeof openaiApiKey === "string" ? openaiApiKey : "";
+    supadataKeyInput.value = typeof supadataApiKey === "string" ? supadataApiKey : "";
 });
 
 for (const button of document.querySelectorAll(".toggle")) {
@@ -21,11 +23,13 @@ for (const button of document.querySelectorAll(".toggle")) {
 
 saveButton.addEventListener("click", async () => {
     const youtubeApiKey = youtubeKeyInput.value.trim();
-    const geminiApiKey = geminiKeyInput.value.trim();
-    if (!youtubeApiKey || !geminiApiKey) {
-        statusElement.textContent = "Both API keys are required.";
+    const openaiApiKey = openaiKeyInput.value.trim();
+    const supadataApiKey = supadataKeyInput.value.trim();
+    if (!youtubeApiKey || !openaiApiKey || !supadataApiKey) {
+        statusElement.textContent = "All three API keys are required.";
         return;
     }
-    await chrome.storage.local.set({youtubeApiKey, geminiApiKey});
+    await chrome.storage.local.set({youtubeApiKey, openaiApiKey, supadataApiKey});
+    await chrome.storage.local.remove("geminiApiKey");
     statusElement.textContent = "Saved. Open a YouTube video to analyze it.";
 });
