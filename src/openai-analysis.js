@@ -77,8 +77,10 @@ The extension renders the requested format from structured fields. Return only v
 Keep the combined prose across summary, keyTakeaways, viewerConsensus, spoilers, and clickbait reason within 150 words. Scores are integers from 0 to 100. Sentiment percentages must total 100. Do not include markdown or text outside the JSON.
 
 ${compact ? `THUMBNAIL PREVIEW MODE:
-- This is a fast suggestion based on the title, description, and thumbnail; a transcript may not be available.
-- Never invent names, events, or outcomes that are not supported by those inputs.
+- Use the transcript as the primary source of truth.
+- Never mention the title, thumbnail, transcript, captions, prompt, inputs, or what they do or do not show.
+- Write only about the video's actual subject, actions, facts, result, or conclusion.
+- Prefer concrete names, objects, numbers, actions, and outcomes over general descriptions.
 - Make the summary one direct sentence of no more than 22 words.
 - Return exactly two specific keyTakeaways, each no more than 14 words.
 - Keep all combined prose under 55 words.` : ""}`;

@@ -74,6 +74,7 @@ const compactPrompt = buildPrompt({
 });
 assert.match(compactPrompt, /THUMBNAIL PREVIEW MODE/);
 assert.match(compactPrompt, /no more than 22 words/);
+assert.match(compactPrompt, /Never mention the title, thumbnail, transcript/);
 
 globalThis.fetch = originalFetch;
 

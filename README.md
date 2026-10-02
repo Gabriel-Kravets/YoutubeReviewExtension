@@ -2,7 +2,7 @@
 
 Spoil It is a Chrome extension that tells viewers exactly what happens in a YouTube video. On the `thumbnail-browsing` branch, viewers can get a short spoiler before opening the video: hover over a thumbnail, click **Spoil**, and decide whether it is worth watching.
 
-Thumbnail previews work across YouTube Home, Search, Subscriptions, and recommendation sidebars. Each compact preview includes:
+Thumbnail previews work across YouTube Home, Search, Subscriptions, Shorts shelves, and recommendation sidebars. Each compact preview includes:
 
 - a direct answer describing what the video is really about;
 - up to three specific takeaways;
@@ -30,7 +30,7 @@ The YouTube key must have YouTube Data API v3 enabled. Supadata retrieves native
 
 ## Privacy and cost behavior
 
-Analysis starts only after the user clicks **Spoil**. The fast thumbnail suggestion sends the public title and thumbnail directly to OpenAI without waiting for transcription. The full watch-page report uses Supadata for transcription and also includes fetched comments. Completed suggestions, transcripts, and full reports are cached locally per video to avoid duplicate requests.
+Analysis starts only after the user clicks **Spoil**. Supadata retrieves or generates a transcript before OpenAI writes the thumbnail spoiler. The full watch-page report also includes fetched comments. Completed suggestions, transcripts, and full reports are cached locally per video to avoid duplicate requests.
 
 For a public release, API calls and keys should be moved to a secure backend rather than distributed to extension users.
 
