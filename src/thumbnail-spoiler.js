@@ -4,7 +4,10 @@
     const THUMBNAIL_SELECTOR = [
         'ytd-thumbnail a#thumbnail[href*="/watch"]',
         'yt-thumbnail-view-model a[href*="/watch"]',
-        'a#thumbnail[href*="/watch"]'
+        'a#thumbnail[href*="/watch"]',
+        'a.yt-lockup-view-model-wiz__content-image[href*="/watch"]',
+        'a[href*="/watch"]:has(> yt-thumbnail-view-model)',
+        'a[href*="/watch"]:has(ytd-thumbnail)'
     ].join(",");
     const WRAPPER_SELECTOR = "ytd-thumbnail, yt-thumbnail-view-model";
     const CARD_SELECTOR = [
@@ -233,7 +236,7 @@
     }
 
     function enhance(anchor) {
-        const wrapper = anchor.closest(WRAPPER_SELECTOR) || anchor;
+        const wrapper = anchor.querySelector(WRAPPER_SELECTOR) || anchor.closest(WRAPPER_SELECTOR) || anchor;
         if (wrapper.dataset.ysSpoilReady) {
             return;
         }
@@ -276,10 +279,18 @@
     observer.observe(document.documentElement, {childList: true, subtree: true});
 
     document.addEventListener("click", (event) => {
-        if (!popover?.hidden && !popover.contains(event.target) && !event.target.closest(".ys-spoil-button")) {
+        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+        if (popover && !popover.hidden && target && !popover.contains(target) && !target.closest(".ys-spoil-button")) {
             closePopover();
         }
     });
+    document.addEventListener("pointerover", (event) => {
+        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+        const anchor = target?.closest('a[href*="/watch"]');
+        if (anchor && (anchor.matches(THUMBNAIL_SELECTOR) || anchor.querySelector("ytd-thumbnail, yt-thumbnail-view-model, img"))) {
+            enhance(anchor);
+        }
+    }, true);
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
             closePopover();
