@@ -1,12 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "My Chrome Extension",
-  "version": "0.1.0",
-  "description": "My first Chrome extension.",
+  "name": "YouTube Review — Video Integration",
+  "version": "0.2.0",
+  "description": "Collects public video context from the active YouTube page.",
   "action": {
     "default_popup": "popup.html"
   },
   "permissions": [
+    "activeTab",
     "storage"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://youtu.be/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["youtube-context.js"],
+      "run_at": "document_idle"
+    }
   ]
 }
