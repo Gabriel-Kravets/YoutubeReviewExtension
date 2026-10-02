@@ -41,7 +41,7 @@
             document.dispatchEvent(new CustomEvent("youtube-review:analyze"));
         });
 
-        const disclosure = createElement("p", "yr-disclosure", "Analysis sends the public video URL, metadata, and comments to Gemini.");
+        const disclosure = createElement("p", "yr-disclosure", "Audio is transcribed first; the transcript, thumbnail, metadata, and comments are analyzed by OpenAI.");
 
         const loading = createElement("section", "yr-loading");
         loading.dataset.role = "loading";
@@ -108,7 +108,7 @@
         const settings = createElement("button", "yr-settings", "Settings");
         settings.type = "button";
         settings.addEventListener("click", () => document.dispatchEvent(new CustomEvent("youtube-review:settings")));
-        footer.append(createElement("span", "", "Powered by Gemini"), settings);
+        footer.append(createElement("span", "", "Analysis by OpenAI"), settings);
 
         panel.append(header, hero, action, disclosure, loading, report, error, footer);
         return panel;
