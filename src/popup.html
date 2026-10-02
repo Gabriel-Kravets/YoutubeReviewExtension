@@ -8,9 +8,9 @@
 </head>
 <body>
 <main>
-    <p class="eyebrow">Spoil It</p>
-    <h1>Analysis settings</h1>
-    <p class="intro">Supadata transcribes the video; OpenAI turns the transcript into the final report.</p>
+    <header><p class="brand">Spoil It</p><h1>Settings</h1></header>
+    <p class="intro">Connect the services Spoil It uses to reveal what happens in a video.</p>
+    <div class="settings-card">
     <div class="field">
         <label for="openai-key">OpenAI API key</label>
         <div class="key-row">
@@ -27,7 +27,8 @@
     </div>
     <button id="save-key" class="primary" type="button">Save locally</button>
     <p id="status" role="status" aria-live="polite"></p>
-    <p class="privacy">Keys remain in this Chrome profile. Public releases require a secure backend instead of user-supplied provider keys.</p>
+    </div>
+    <aside><strong>Stored on this device</strong><p>Keys remain in this Chrome profile and are used only when you analyze a video.</p></aside>
 </main>
 <script src="popup.js"></script>
 </body>
