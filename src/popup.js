@@ -62,5 +62,5 @@ saveButton.addEventListener("click", async () => {
     clearTimeout(draftSaveTimer);
     await saveDraft(false);
     await chrome.storage.local.remove("geminiApiKey");
-    statusElement.textContent = "Saved. Open a YouTube video to analyze it.";
+    statusElement.textContent = "Saved. Hover over a YouTube thumbnail and click Spoil.";
 });

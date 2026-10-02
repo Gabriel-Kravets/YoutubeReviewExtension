@@ -66,6 +66,15 @@ assert.match(prompt, /VIDEO DESCRIPTION:\s*A concrete description\./);
 assert.match(prompt, /TRANSCRIPT \(en\):\s*The test works and costs \$10\./);
 assert.match(prompt, /You are a video spoiler engine/);
 
+const compactPrompt = buildPrompt({
+    context: {title: "A thumbnail video", description: ""},
+    transcript: {language: "en", text: "A short transcript."},
+    comments: [],
+    compact: true
+});
+assert.match(compactPrompt, /THUMBNAIL PREVIEW MODE/);
+assert.match(compactPrompt, /no more than 35 words/);
+
 globalThis.fetch = originalFetch;
 
 globalThis.fetch = async () => new Response(JSON.stringify({

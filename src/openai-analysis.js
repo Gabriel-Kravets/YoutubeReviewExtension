@@ -13,7 +13,7 @@ function cleanArray(value, maximum) {
         : [];
 }
 
-export function buildPrompt({context, comments = [], transcript}) {
+export function buildPrompt({context, comments = [], transcript, compact = false}) {
     const commentPayload = comments.slice(0, 50).map((comment) => ({
         author: comment.author,
         text: String(comment.text || "").slice(0, 1200),
@@ -74,7 +74,13 @@ The extension renders the requested format from structured fields. Return only v
   "confidence": {"score": 0, "reason": "A very short note about transcript coverage."}
 }
 
-Keep the combined prose across summary, keyTakeaways, viewerConsensus, spoilers, and clickbait reason within 150 words. Scores are integers from 0 to 100. Sentiment percentages must total 100. Do not include markdown or text outside the JSON.`;
+Keep the combined prose across summary, keyTakeaways, viewerConsensus, spoilers, and clickbait reason within 150 words. Scores are integers from 0 to 100. Sentiment percentages must total 100. Do not include markdown or text outside the JSON.
+
+${compact ? `THUMBNAIL PREVIEW MODE:
+- Make the summary a direct answer of no more than 35 words.
+- Return only two or three keyTakeaways, each no more than 18 words.
+- Choose facts that most clearly prove what happens and whether the title delivers.
+- Keep all combined prose under 90 words.` : ""}`;
 }
 
 export function extractResponseText(payload) {
@@ -122,12 +128,12 @@ export function parseReport(text) {
     };
 }
 
-export async function analyzeVideo({apiKey, context, comments, transcript}) {
+export async function analyzeVideo({apiKey, context, comments, transcript, compact = false}) {
     if (!apiKey) {
         throw new Error("Add an OpenAI API key in the extension settings first.");
     }
 
-    const content = [{type: "input_text", text: buildPrompt({context, comments, transcript})}];
+    const content = [{type: "input_text", text: buildPrompt({context, comments, transcript, compact})}];
     if (context?.thumbnailUrl) {
         content.push({type: "input_image", image_url: context.thumbnailUrl, detail: "low"});
     }

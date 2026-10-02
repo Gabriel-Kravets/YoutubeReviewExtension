@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Spoil It",
-  "version": "0.4.0",
-  "description": "Spoil any YouTube video with a concise answer, key points, verdict, and clickbait check.",
+  "version": "0.5.0",
+  "description": "Spoil a YouTube video from its thumbnail before you click.",
   "action": {
     "default_popup": "popup.html"
   },
@@ -28,8 +28,8 @@
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
-      "js": ["youtube-context.js", "panel.js", "integration.js"],
-      "css": ["panel.css"],
+      "js": ["youtube-context.js", "panel.js", "integration.js", "thumbnail-spoiler.js"],
+      "css": ["panel.css", "thumbnail-spoiler.css"],
       "run_at": "document_idle"
     }
   ]

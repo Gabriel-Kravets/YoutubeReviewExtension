@@ -37,6 +37,31 @@ async function runAnalysis(context) {
     return result;
 }
 
+async function runThumbnailAnalysis(context) {
+    const {openaiApiKey} = await storageGet("openaiApiKey");
+    if (!openaiApiKey) {
+        throw new Error("Add your OpenAI API key in Settings first.");
+    }
+    if (!context?.videoId) {
+        throw new Error("This thumbnail does not have a valid YouTube video ID.");
+    }
+
+    const report = await analyzeVideo({
+        apiKey: openaiApiKey,
+        context,
+        comments: [],
+        transcript: context.transcript,
+        compact: true
+    });
+    const result = {
+        report,
+        context,
+        savedAt: new Date().toISOString()
+    };
+    await chrome.storage.local.set({[`thumbnail-report:v1:${context.videoId}`]: result});
+    return result;
+}
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type === "OPEN_SETTINGS") {
         chrome.runtime.openOptionsPage();
@@ -72,6 +97,16 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             }
             return {ok: true, ...result};
         })().then(sendResponse).catch((error) => sendResponse({ok: false, error: error.message}));
+        return true;
+    }
+
+    if (message?.type === "ANALYZE_THUMBNAIL") {
+        runThumbnailAnalysis(message.context)
+            .then((result) => sendResponse({ok: true, ...result}))
+            .catch((error) => sendResponse({
+                ok: false,
+                error: error instanceof Error ? error.message : "The thumbnail could not be spoiled."
+            }));
         return true;
     }
 
