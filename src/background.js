@@ -33,7 +33,7 @@ async function runAnalysis(context) {
         },
         savedAt: new Date().toISOString()
     };
-    await chrome.storage.local.set({[`report:${context.videoId}`]: result});
+    await chrome.storage.local.set({[`report:v2:${context.videoId}`]: result});
     return result;
 }
 

@@ -75,7 +75,7 @@
         if (!context?.videoId) {
             return;
         }
-        const key = `report:${context.videoId}`;
+        const key = `report:v2:${context.videoId}`;
         const stored = await chrome.storage.local.get(key);
         if (stored[key]?.report) {
             globalThis.YouTubeReviewPanel?.renderReport(stored[key].report, context);
