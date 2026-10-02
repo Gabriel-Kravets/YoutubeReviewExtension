@@ -1,12 +1,35 @@
 {
   "manifest_version": 3,
-  "name": "My Chrome Extension",
-  "version": "0.1.0",
-  "description": "My first Chrome extension.",
+  "name": "Preview — AI YouTube Briefings",
+  "version": "0.4.0",
+  "description": "Concise AI video summaries, clickbait scores, viewer sentiment, and key takeaways.",
   "action": {
     "default_popup": "popup.html"
   },
+  "options_ui": {
+    "page": "popup.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "permissions": [
+    "activeTab",
     "storage"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://youtu.be/*",
+    "https://www.googleapis.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["youtube-context.js", "panel.js", "integration.js"],
+      "css": ["panel.css"],
+      "run_at": "document_idle"
+    }
   ]
 }
