@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {fetchTopComments} from "../src/comment-service.js";
-import {parseReport} from "../src/openai-analysis.js";
+import {buildPrompt, parseReport} from "../src/openai-analysis.js";
 import {checkTranscript, startTranscript} from "../src/transcript-service.js";
 
 const comment = (id, text = id) => ({
@@ -55,6 +55,16 @@ assert.deepEqual(
     [report.sentiment.positive, report.sentiment.neutral, report.sentiment.negative],
     [60, 20, 20]
 );
+
+const prompt = buildPrompt({
+    context: {title: "Does it work?", description: "A concrete description."},
+    transcript: {language: "en", text: "The test works and costs $10."},
+    comments: []
+});
+assert.match(prompt, /VIDEO TITLE:\s*Does it work\?/);
+assert.match(prompt, /VIDEO DESCRIPTION:\s*A concrete description\./);
+assert.match(prompt, /TRANSCRIPT \(en\):\s*The test works and costs \$10\./);
+assert.match(prompt, /You are a video spoiler engine/);
 
 globalThis.fetch = originalFetch;
 

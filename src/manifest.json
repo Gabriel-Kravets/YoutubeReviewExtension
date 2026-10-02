@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Preview — AI YouTube Briefings",
+  "name": "SpoilIt",
   "version": "0.4.0",
-  "description": "Concise AI video summaries, clickbait scores, viewer sentiment, and key takeaways.",
+  "description": "Spoil any YouTube video with a concise answer, key points, verdict, and clickbait check.",
   "action": {
     "default_popup": "popup.html"
   },

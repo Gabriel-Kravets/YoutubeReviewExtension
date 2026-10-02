@@ -21,38 +21,60 @@ export function buildPrompt({context, comments = [], transcript}) {
         isReply: !!comment.isReply
     }));
 
-    return `Create a concise, honest YouTube briefing from the supplied transcript, metadata, thumbnail, and viewer comments.
+    return `You are a video spoiler engine. Your job is to tell the viewer exactly what happens in a YouTube video so they don't need to watch it.
 
-Evidence limits: the transcript represents the spoken audio but may contain speech-recognition errors and does not fully describe visual-only events. Treat the title, description, and thumbnail as creator-supplied claims. Treat comments as reactions, not ground truth. Estimate clickbait by comparing the title and thumbnail promise with the transcript and viewer reactions.
+INPUT YOU'LL RECEIVE:
 
-Video metadata:
-${JSON.stringify({
-        title: context.title,
-        channel: context.channel,
-        description: context.description,
-        durationSeconds: context.durationSeconds,
-        captionsDetected: context.captionsDetected
-    })}
+- Video title
+- Video description
+- Transcript (if available)
 
-Viewer comments:
-${JSON.stringify(commentPayload)}
+RULES:
 
-Video transcript (${transcript?.language || "unknown language"}):
+1. Spoil everything important. Give the actual answers, results, reveals, and conclusions, not teasers. If the title asks a question, answer it in the first line.
+2. Be specific. Use real names, numbers, prices, products, steps, timestamps, and outcomes from the transcript and description. Never write vague lines like "the creator discusses several tips" — say what the tips ARE.
+3. Anchor to the title and description. Prioritize the content that delivers on what the title promises. Ignore filler, sponsor reads, intros, outros, and "like and subscribe" segments.
+4. Be concise. No more than 150 words total. No repeated points. No fluff.
+5. If the title is clickbait or the video doesn't deliver on it, say so in one line.
+
+OUTPUT FORMAT:
+**The answer:** [One sentence that directly delivers on the title's promise]
+
+**Key points:**
+
+- [Specific point with concrete detail]
+- [Specific point with concrete detail]
+- [3–5 bullets max]
+
+**Ending/verdict:** [The final result, conclusion, or reveal]
+
+**Clickbait check:** [Delivers / Partially delivers / Doesn't deliver, plus a short reason]
+
+VIDEO TITLE:
+${context.title || "Untitled video"}
+
+VIDEO DESCRIPTION:
+${context.description || "No description was provided."}
+
+TRANSCRIPT (${transcript?.language || "unknown language"}):
 ${String(transcript?.text || "No transcript was available.").slice(0, 120000)}
 
-Return only valid JSON matching this exact structure:
+VIEWER COMMENTS (supporting reactions only; do not treat them as ground truth):
+${JSON.stringify(commentPayload)}
+
+The extension renders the requested format from structured fields. Return only valid JSON matching this exact transport structure:
 {
-  "summary": "Two or three short sentences explaining what the available evidence says the video covers.",
-  "clickbaitProbability": {"score": 0, "reason": "One short sentence."},
+  "summary": "The answer: one sentence that directly delivers on the title's promise.",
+  "clickbaitProbability": {"score": 0, "reason": "Delivers, Partially delivers, or Doesn't deliver — plus a short reason."},
   "sentiment": {"positive": 0, "neutral": 0, "negative": 0, "label": "Positive|Mixed|Neutral|Negative"},
-  "recurringThemes": ["Up to five short themes"],
-  "keyTakeaways": ["Three to five useful points or claims"],
-  "viewerConsensus": "One or two concise sentences.",
-  "spoilers": ["Up to four important reveals or conclusions supported by the evidence"],
-  "confidence": {"score": 0, "reason": "Mention transcript coverage and any evidence limits."}
+  "recurringThemes": ["Up to three short labels grounded in the transcript"],
+  "keyTakeaways": ["Three to five specific key points with concrete detail"],
+  "viewerConsensus": "At most one short sentence, only if comments add unique evidence.",
+  "spoilers": ["Ending/verdict: the final result, conclusion, or reveal"],
+  "confidence": {"score": 0, "reason": "A very short note about transcript coverage."}
 }
 
-Scores are integers from 0 to 100. Sentiment percentages must total 100. Do not include markdown or text outside the JSON.`;
+Keep the combined prose across summary, keyTakeaways, viewerConsensus, spoilers, and clickbait reason within 150 words. Scores are integers from 0 to 100. Sentiment percentages must total 100. Do not include markdown or text outside the JSON.`;
 }
 
 export function extractResponseText(payload) {
