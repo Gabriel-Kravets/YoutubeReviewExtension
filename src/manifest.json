@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "YouTube Comment Review",
-  "version": "0.2.0",
-  "description": "Fetch the 50 most relevant comments from the current YouTube video.",
+  "version": "0.3.0",
+  "description": "Fetch up to 50 relevant comments and replies from the current YouTube video.",
   "action": {
     "default_popup": "popup.html"
   },

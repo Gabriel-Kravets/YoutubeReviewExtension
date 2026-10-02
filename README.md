@@ -1,6 +1,6 @@
 # YouTube Comment Review Extension
 
-This Chrome extension fetches the 50 most relevant top-level comments for the YouTube video open in the active tab. It uses the official YouTube Data API v3 instead of scraping YouTube's page markup.
+This Chrome extension fetches up to 50 relevant comments, including replies, for the YouTube video open in the active tab. It uses the official YouTube Data API v3 instead of scraping YouTube's page markup.
 
 ## Set up a YouTube Data API key
 
@@ -23,11 +23,13 @@ The popup supports standard watch URLs, Shorts, livestream URLs, embedded-video 
 
 ## API behavior
 
-The extension calls `commentThreads.list` with:
+The extension first calls `commentThreads.list` with:
 
 - `part=snippet`
 - `order=relevance`
 - `maxResults=50`
 - `textFormat=plainText`
 
-Only top-level comments are returned. Reply counts are retained in the normalized data, but replies are not fetched because that would require additional API requests and quota.
+For each returned thread that has replies, the extension calls `comments.list` with the top-level comment's ID. Replies are placed directly after their parent comment. The combined result is capped at 50 comments, so highly active threads can fill the limit before every lower-ranked thread is displayed.
+
+The initial request costs one quota unit. Each thread containing replies requires at least one additional quota unit, with another unit required for every additional page of replies.

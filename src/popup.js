@@ -1,6 +1,7 @@
 "use strict";
 
-const API_BASE_URL = "https://www.googleapis.com/youtube/v3/commentThreads";
+const COMMENT_THREADS_API_URL = "https://www.googleapis.com/youtube/v3/commentThreads";
+const COMMENTS_API_URL = "https://www.googleapis.com/youtube/v3/comments";
 const COMMENT_LIMIT = 50;
 
 const apiKeyInput = document.getElementById("api-key");
@@ -51,7 +52,7 @@ function renderComments(comments) {
 
     for (const comment of comments) {
         const listItem = document.createElement("li");
-        listItem.className = "comment";
+        listItem.className = comment.isReply ? "comment reply" : "comment";
 
         const metadata = document.createElement("div");
         metadata.className = "comment-meta";
@@ -59,6 +60,13 @@ function renderComments(comments) {
         const author = document.createElement("span");
         author.className = "author";
         author.textContent = comment.author;
+
+        if (comment.isReply) {
+            const context = document.createElement("span");
+            context.className = "reply-context";
+            context.textContent = `Reply to ${comment.parentAuthor}`;
+            author.append(context);
+        }
 
         const details = document.createElement("span");
         const likeLabel = comment.likeCount === 1 ? "like" : "likes";
@@ -73,42 +81,29 @@ function renderComments(comments) {
         commentListElement.append(listItem);
     }
 
-    resultCountElement.textContent = `${comments.length} returned`;
+    const replyCount = comments.filter((comment) => comment.isReply).length;
+    const topLevelCount = comments.length - replyCount;
+    resultCountElement.textContent = `${topLevelCount} top-level · ${replyCount} replies`;
     resultsElement.hidden = false;
 }
 
-function parseComments(items) {
-    return items.map((item) => {
-        const threadSnippet = item.snippet;
-        const snippet = threadSnippet.topLevelComment.snippet;
+function normalizeComment(item, options = {}) {
+    const snippet = item.snippet;
 
-        return {
-            id: item.id,
-            author: snippet.authorDisplayName || "Unknown author",
-            text: snippet.textDisplay || snippet.textOriginal || "",
-            likeCount: snippet.likeCount || 0,
-            publishedAt: snippet.publishedAt,
-            replyCount: threadSnippet.totalReplyCount || 0
-        };
-    });
+    return {
+        id: item.id,
+        author: snippet.authorDisplayName || "Unknown author",
+        text: snippet.textDisplay || snippet.textOriginal || "",
+        likeCount: snippet.likeCount || 0,
+        publishedAt: snippet.publishedAt,
+        isReply: !!options.isReply,
+        parentId: options.parentId || null,
+        parentAuthor: options.parentAuthor || ""
+    };
 }
 
-async function getActiveTab() {
-    const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-    return tab;
-}
-
-async function fetchTopComments(videoId, apiKey) {
-    const params = new URLSearchParams({
-        part: "snippet",
-        videoId,
-        maxResults: String(COMMENT_LIMIT),
-        order: "relevance",
-        textFormat: "plainText",
-        key: apiKey
-    });
-
-    const response = await fetch(`${API_BASE_URL}?${params}`);
+async function requestYouTube(endpoint, params) {
+    const response = await fetch(`${endpoint}?${params}`);
     const payload = await response.json();
 
     if (!response.ok) {
@@ -127,7 +122,77 @@ async function fetchTopComments(videoId, apiKey) {
         throw new Error(message);
     }
 
-    return parseComments(payload.items || []);
+    return payload;
+}
+
+async function getActiveTab() {
+    const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
+    return tab;
+}
+
+async function fetchReplies(parentComment, apiKey, limit) {
+    const replies = [];
+    let pageToken;
+
+    while (replies.length < limit) {
+        const params = new URLSearchParams({
+            part: "snippet",
+            parentId: parentComment.id,
+            maxResults: String(Math.min(100, limit - replies.length)),
+            textFormat: "plainText",
+            key: apiKey
+        });
+
+        if (pageToken) {
+            params.set("pageToken", pageToken);
+        }
+
+        const payload = await requestYouTube(COMMENTS_API_URL, params);
+        replies.push(...(payload.items || []).map((item) => normalizeComment(item, {
+            isReply: true,
+            parentId: parentComment.id,
+            parentAuthor: parentComment.author
+        })));
+
+        pageToken = payload.nextPageToken;
+        if (!pageToken) {
+            break;
+        }
+    }
+
+    return replies.slice(0, limit);
+}
+
+async function fetchTopComments(videoId, apiKey) {
+    const params = new URLSearchParams({
+        part: "snippet",
+        videoId,
+        maxResults: String(COMMENT_LIMIT),
+        order: "relevance",
+        textFormat: "plainText",
+        key: apiKey
+    });
+
+    const payload = await requestYouTube(COMMENT_THREADS_API_URL, params);
+    const comments = [];
+
+    for (const thread of payload.items || []) {
+        if (comments.length >= COMMENT_LIMIT) {
+            break;
+        }
+
+        const topLevelComment = normalizeComment(thread.snippet.topLevelComment);
+        comments.push(topLevelComment);
+
+        const replyCount = thread.snippet.totalReplyCount || 0;
+        const remaining = COMMENT_LIMIT - comments.length;
+        if (replyCount > 0 && remaining > 0) {
+            const replies = await fetchReplies(topLevelComment, apiKey, Math.min(replyCount, remaining));
+            comments.push(...replies);
+        }
+    }
+
+    return comments;
 }
 
 async function handleFetch() {
@@ -154,7 +219,7 @@ async function handleFetch() {
             throw new Error("Open a YouTube video, Short, livestream, or youtu.be link and try again.");
         }
 
-        setStatus("Requesting the most relevant comments from YouTube…");
+        setStatus("Requesting comments and replies from YouTube…");
         const comments = await fetchTopComments(videoId, apiKey);
         renderComments(comments);
 

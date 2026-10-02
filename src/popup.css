@@ -178,6 +178,12 @@ ol {
     background: white;
 }
 
+.comment.reply {
+    margin-left: 22px;
+    border-left: 3px solid #aebbd1;
+    background: #fafbfe;
+}
+
 .comment-meta {
     display: flex;
     justify-content: space-between;
@@ -193,6 +199,14 @@ ol {
     font-weight: 800;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.reply-context {
+    display: block;
+    margin-top: 2px;
+    color: #78839a;
+    font-size: 10px;
+    font-weight: 500;
 }
 
 .comment-text {
