@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SpoilIt — Transcribed OpenAI Analysis",
+  "name": "Spoil It — Transcribed OpenAI Analysis",
   "version": "0.3.0",
   "description": "Transcribes YouTube videos and reveals the answer, key points, verdict, and clickbait check.",
   "action": {

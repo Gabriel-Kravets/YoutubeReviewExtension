@@ -1,4 +1,4 @@
-# SpoilIt AI model analysis branch
+# Spoil It AI model analysis branch
 
 This branch owns transcription and structured video analysis with OpenAI.
 
