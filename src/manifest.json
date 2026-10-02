@@ -1,12 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "My Chrome Extension",
-  "version": "0.1.0",
-  "description": "My first Chrome extension.",
+  "name": "YouTube Comment Review",
+  "version": "0.2.0",
+  "description": "Fetch the 50 most relevant comments from the current YouTube video.",
   "action": {
     "default_popup": "popup.html"
   },
   "permissions": [
+    "activeTab",
     "storage"
+  ],
+  "host_permissions": [
+    "https://www.googleapis.com/*"
   ]
 }

@@ -1,14 +1,41 @@
+<!doctype html>
 <html lang="en">
 <head>
-    <title>My popup</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YouTube Comment Review</title>
     <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 <body>
-<label class="switch">
-    <input id="enabled" type="checkbox">
-    <span class="slider round"></span>
-</label>
-<input class="secret" id="item" type="text">
+<main>
+    <header>
+        <p class="eyebrow">YouTube Comment Review</p>
+        <h1>Top comments</h1>
+        <p class="subtitle">Fetch the 50 most relevant top-level comments from the video in your active tab.</p>
+    </header>
+
+    <section class="settings" aria-labelledby="settings-heading">
+        <h2 id="settings-heading">YouTube Data API</h2>
+        <label for="api-key">API key</label>
+        <div class="key-row">
+            <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key">
+            <button id="toggle-key" class="secondary" type="button" aria-label="Show API key">Show</button>
+        </div>
+        <p class="help">The key is saved only in this browser profile.</p>
+    </section>
+
+    <button id="fetch-comments" class="primary" type="button">Fetch top 50 comments</button>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <section id="results" class="results" aria-labelledby="results-heading" hidden>
+        <div class="results-header">
+            <h2 id="results-heading">Comments</h2>
+            <span id="result-count" class="count"></span>
+        </div>
+        <ol id="comment-list"></ol>
+    </section>
+</main>
 <script src="popup.js"></script>
 </body>
 </html>
