@@ -73,7 +73,7 @@ const compactPrompt = buildPrompt({
     compact: true
 });
 assert.match(compactPrompt, /THUMBNAIL PREVIEW MODE/);
-assert.match(compactPrompt, /no more than 35 words/);
+assert.match(compactPrompt, /no more than 22 words/);
 
 globalThis.fetch = originalFetch;
 

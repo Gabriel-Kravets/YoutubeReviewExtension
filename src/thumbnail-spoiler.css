@@ -6,7 +6,8 @@
     position: absolute;
     z-index: 2147483646;
     top: 10px;
-    right: 10px;
+    right: auto;
+    left: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -82,18 +83,16 @@ html[dark-theme] .ys-popover,
     cursor: pointer;
 }
 .ys-popover h3 { margin: 11px 0 0; font-size: 17px; line-height: 1.25; letter-spacing: -.025em; }
-.ys-kicker { margin: 17px 0 0; color: var(--ys-accent); font-size: 9px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
-.ys-answer { margin: 12px 0 0; font-size: 14px; font-weight: 700; line-height: 1.45; }
-.ys-popover ul { margin: 13px 0 0; padding: 13px 14px 8px 29px; border: 1px solid var(--ys-border); border-radius: 16px; background: var(--ys-card); }
+.ys-popover ul { margin: 14px 0 0; padding: 14px 15px 6px 30px; border: 1px solid var(--ys-border); border-radius: 16px; background: var(--ys-card); }
 .ys-popover li { margin: 0 0 8px; padding-left: 2px; color: var(--ys-text); }
 .ys-popover li::marker { color: var(--ys-accent); }
+.ys-summary-list li { font-size: 13px; font-weight: 650; line-height: 1.45; }
+.ys-summary-list li:first-child { font-size: 14px; font-weight: 800; }
 .ys-clickbait { display: grid; grid-template-columns: 1fr auto; gap: 7px 12px; margin-top: 12px; padding: 12px 14px; border: 1px solid var(--ys-border); border-radius: 16px; background: var(--ys-card); }
 .ys-clickbait span { color: var(--ys-muted); font-size: 10px; font-weight: 800; text-transform: uppercase; }
 .ys-clickbait strong { font-size: 13px; }
 .ys-clickbait i { grid-column: 1 / -1; height: 5px; overflow: hidden; border-radius: 999px; background: var(--ys-bg); }
 .ys-clickbait b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ffb536, var(--ys-accent)); }
-.ys-full { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding: 12px 14px; border-radius: 14px; color: #fff; background: #11131a; font-weight: 800; text-decoration: none; }
-html[dark] .ys-full, html[dark-theme] .ys-full, [dark] .ys-full { color: #11131a; background: #f7f7f8; }
 .ys-loading { display: flex; align-items: center; gap: 12px; margin-top: 15px; padding: 15px; border: 1px solid var(--ys-border); border-radius: 16px; background: var(--ys-card); }
 .ys-loading i { width: 28px; height: 28px; flex: 0 0 auto; border: 2px solid var(--ys-border); border-top-color: var(--ys-accent); border-radius: 50%; animation: ys-spin .8s linear infinite; }
 .ys-loading strong { display: block; }

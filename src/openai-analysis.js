@@ -77,10 +77,11 @@ The extension renders the requested format from structured fields. Return only v
 Keep the combined prose across summary, keyTakeaways, viewerConsensus, spoilers, and clickbait reason within 150 words. Scores are integers from 0 to 100. Sentiment percentages must total 100. Do not include markdown or text outside the JSON.
 
 ${compact ? `THUMBNAIL PREVIEW MODE:
-- Make the summary a direct answer of no more than 35 words.
-- Return only two or three keyTakeaways, each no more than 18 words.
-- Choose facts that most clearly prove what happens and whether the title delivers.
-- Keep all combined prose under 90 words.` : ""}`;
+- This is a fast suggestion based on the title, description, and thumbnail; a transcript may not be available.
+- Never invent names, events, or outcomes that are not supported by those inputs.
+- Make the summary one direct sentence of no more than 22 words.
+- Return exactly two specific keyTakeaways, each no more than 14 words.
+- Keep all combined prose under 55 words.` : ""}`;
 }
 
 export function extractResponseText(payload) {
@@ -148,7 +149,7 @@ export async function analyzeVideo({apiKey, context, comments, transcript, compa
             model: OPENAI_MODEL,
             reasoning: {effort: "low"},
             input: [{role: "user", content}],
-            max_output_tokens: 1800
+            max_output_tokens: compact ? 600 : 1800
         })
     });
 

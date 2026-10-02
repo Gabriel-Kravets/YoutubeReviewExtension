@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Spoil It",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Spoil a YouTube video from its thumbnail before you click.",
   "action": {
     "default_popup": "popup.html"

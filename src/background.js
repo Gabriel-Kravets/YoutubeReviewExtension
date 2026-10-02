@@ -58,7 +58,7 @@ async function runThumbnailAnalysis(context) {
         context,
         savedAt: new Date().toISOString()
     };
-    await chrome.storage.local.set({[`thumbnail-report:v1:${context.videoId}`]: result});
+    await chrome.storage.local.set({[`thumbnail-report:v2:${context.videoId}`]: result});
     return result;
 }
 

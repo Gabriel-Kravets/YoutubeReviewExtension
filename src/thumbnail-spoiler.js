@@ -18,8 +18,6 @@
         "ytd-playlist-video-renderer",
         "yt-lockup-view-model"
     ].join(",");
-    const POLL_DELAY_MS = 1800;
-    const MAX_POLLS = 34;
     let popover;
     let activeButton;
     let requestToken = 0;
@@ -51,7 +49,11 @@
             return null;
         }
         const card = anchor.closest(CARD_SELECTOR) || anchor.parentElement;
-        const titleElement = card?.querySelector("#video-title, a#video-title-link, h3 a, [title]");
+        const titleElement = card?.querySelector("#video-title, a#video-title-link, a.yt-lockup-metadata-view-model-wiz__title, h3 a[href*='/watch']")
+            || Array.from(card?.querySelectorAll('a[href*="/watch"]') || []).find((candidate) => {
+                const text = candidate.textContent?.trim() || "";
+                return candidate !== anchor && text.length > 4 && !/^play\b/i.test(text);
+            });
         const image = anchor.querySelector("img") || card?.querySelector("img");
         const title = titleElement?.getAttribute("title")?.trim()
             || titleElement?.textContent?.trim()
@@ -103,37 +105,22 @@
         card.dataset.state = "loading";
         card.innerHTML = `
             <div class="ys-popover-head"><span>Spoil It</span><button type="button" data-close aria-label="Close">×</button></div>
-            <h3></h3>
-            <div class="ys-loading"><i></i><div><strong>Getting the spoiler</strong><p data-progress>Reading the captions…</p></div></div>
+            <div class="ys-loading"><i></i><div><strong>Getting the gist</strong><p>Checking the title and thumbnail…</p></div></div>
         `;
-        card.querySelector("h3").textContent = context.title;
         card.querySelector("[data-close]").addEventListener("click", closePopover);
         positionPopover(button);
     }
 
-    function setProgress(text) {
-        const target = popover?.querySelector("[data-progress]");
-        if (target) {
-            target.textContent = text;
-        }
-    }
-
     function renderReport(button, context, report) {
         const card = ensurePopover();
-        const points = (report.keyTakeaways || []).slice(0, 3);
+        const points = [report.summary, ...(report.keyTakeaways || []).slice(0, 2)].filter(Boolean);
         const clickbait = Math.max(0, Math.min(100, Number(report.clickbaitProbability?.score) || 0));
         card.dataset.state = "report";
         card.innerHTML = `
             <div class="ys-popover-head"><span>Spoil It</span><button type="button" data-close aria-label="Close">×</button></div>
-            <p class="ys-kicker">What it’s really about</p>
-            <h3 data-title></h3>
-            <p class="ys-answer" data-answer></p>
-            <ul data-points></ul>
+            <ul class="ys-summary-list" data-points></ul>
             <div class="ys-clickbait"><span>Clickbait</span><strong>${clickbait}%</strong><i><b style="width:${clickbait}%"></b></i></div>
-            <a class="ys-full" href="${context.url}">Open video for the full spoiler <span>→</span></a>
         `;
-        card.querySelector("[data-title]").textContent = context.title;
-        card.querySelector("[data-answer]").textContent = report.summary || "No concise answer was returned.";
         const list = card.querySelector("[data-points]");
         for (const point of points) {
             const item = document.createElement("li");
@@ -170,38 +157,6 @@
         activeButton = null;
     }
 
-    async function waitForTranscript(context, token) {
-        const initial = await sendMessage({type: "START_TRANSCRIPT", context});
-        if (!initial?.ok) {
-            throw new Error(initial?.error || "The transcript could not be retrieved.");
-        }
-        if (initial.status === "completed") {
-            return initial.transcript;
-        }
-        if (!initial.jobId) {
-            throw new Error("The transcription provider did not return a transcript job.");
-        }
-
-        for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
-            await new Promise((resolve) => setTimeout(resolve, POLL_DELAY_MS));
-            if (token !== requestToken) {
-                throw new Error("Preview closed.");
-            }
-            setProgress(attempt < 2 ? "Listening for the important details…" : "Finishing the transcript…");
-            const result = await sendMessage({type: "CHECK_TRANSCRIPT", jobId: initial.jobId, videoId: context.videoId});
-            if (!result?.ok) {
-                throw new Error(result?.error || "The transcript could not be completed.");
-            }
-            if (result.status === "completed") {
-                return result.transcript;
-            }
-            if (result.status === "failed") {
-                throw new Error("The transcription provider could not process this video.");
-            }
-        }
-        throw new Error("The transcript is taking longer than expected. Try again shortly.");
-    }
-
     async function spoil(button, context) {
         const token = ++requestToken;
         activeButton?.removeAttribute("aria-expanded");
@@ -210,18 +165,13 @@
         showLoading(button, context);
 
         try {
-            const cacheKey = `thumbnail-report:v1:${context.videoId}`;
+            const cacheKey = `thumbnail-report:v2:${context.videoId}`;
             const cached = await chrome.storage.local.get(cacheKey);
             if (cached[cacheKey]?.report) {
                 renderReport(button, context, cached[cacheKey].report);
                 return;
             }
-            const transcript = await waitForTranscript(context, token);
-            if (token !== requestToken) {
-                return;
-            }
-            setProgress("Pulling out the useful details…");
-            const response = await sendMessage({type: "ANALYZE_THUMBNAIL", context: {...context, transcript}});
+            const response = await sendMessage({type: "ANALYZE_THUMBNAIL", context});
             if (!response?.ok) {
                 throw new Error(response?.error || "The thumbnail could not be spoiled.");
             }

@@ -30,7 +30,7 @@ The YouTube key must have YouTube Data API v3 enabled. Supadata retrieves native
 
 ## Privacy and cost behavior
 
-Analysis starts only after the user clicks **Spoil**. Supadata processes the public video URL for transcription; the resulting transcript, thumbnail, and metadata are sent to OpenAI for the compact preview. The full watch-page report also includes fetched comments. Transcripts and completed reports are cached locally per video to avoid duplicate requests.
+Analysis starts only after the user clicks **Spoil**. The fast thumbnail suggestion sends the public title and thumbnail directly to OpenAI without waiting for transcription. The full watch-page report uses Supadata for transcription and also includes fetched comments. Completed suggestions, transcripts, and full reports are cached locally per video to avoid duplicate requests.
 
 For a public release, API calls and keys should be moved to a secure backend rather than distributed to extension users.
 
