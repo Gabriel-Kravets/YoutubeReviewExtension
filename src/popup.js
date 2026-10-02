@@ -1,32 +1,28 @@
 "use strict";
 
-console.log("Hello, world from popup!")
+const keyInput = document.getElementById("gemini-key");
+const showButton = document.getElementById("show-key");
+const saveButton = document.getElementById("save-key");
+const statusElement = document.getElementById("status");
 
-function setBadgeText(enabled) {
-    const text = enabled ? "ON" : "OFF"
-    void chrome.action.setBadgeText({text: text})
-}
-
-// Handle the ON/OFF switch
-const checkbox = document.getElementById("enabled")
-chrome.storage.sync.get("enabled", (data) => {
-    checkbox.checked = !!data.enabled
-    void setBadgeText(data.enabled)
-})
-checkbox.addEventListener("change", (event) => {
-    if (event.target instanceof HTMLInputElement) {
-        void chrome.storage.sync.set({"enabled": event.target.checked})
-        void setBadgeText(event.target.checked)
+chrome.storage.local.get("geminiApiKey", ({geminiApiKey}) => {
+    if (typeof geminiApiKey === "string") {
+        keyInput.value = geminiApiKey;
     }
-})
-
-// Handle the input field
-const input = document.getElementById("item")
-chrome.storage.sync.get("item", (data) => {
-    input.value = data.item || ""
 });
-input.addEventListener("change", (event) => {
-    if (event.target instanceof HTMLInputElement) {
-        void chrome.storage.sync.set({"item": event.target.value})
+
+showButton.addEventListener("click", () => {
+    const showing = keyInput.type === "text";
+    keyInput.type = showing ? "password" : "text";
+    showButton.textContent = showing ? "Show" : "Hide";
+});
+
+saveButton.addEventListener("click", async () => {
+    const geminiApiKey = keyInput.value.trim();
+    if (!geminiApiKey) {
+        statusElement.textContent = "Enter a Gemini API key first.";
+        return;
     }
-})
+    await chrome.storage.local.set({geminiApiKey});
+    statusElement.textContent = "Saved in this browser profile.";
+});

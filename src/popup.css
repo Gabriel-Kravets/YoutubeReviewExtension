@@ -1,57 +1,17 @@
-/* The switch - the box around the slider */
-.switch {
-    margin-left: 30%; /* Center the switch */
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-}
-
-/* Hide default HTML checkbox */
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-/* The slider */
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-}
-
-.slider::before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-}
-
-input:checked + .slider {
-    background-color: #2196F3;
-}
-
-input:checked + .slider:before {
-    transform: translateX(26px); /* Move the slider to the right when checked */
-}
-
-/* Rounded sliders */
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round::before {
-    border-radius: 50%;
-}
-
-.secret {
-    margin: 5px;
-}
+:root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+* { box-sizing: border-box; }
+body { width: 360px; margin: 0; color: #eaf0fb; background: #0c111b; }
+main { padding: 22px; }
+.eyebrow { margin: 0 0 5px; color: #54a0ff; font-size: 10px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+h1 { margin: 0 0 7px; font-size: 24px; letter-spacing: -.035em; }
+.intro, .privacy { color: #9aa7ba; line-height: 1.45; }
+.intro { margin: 0 0 19px; font-size: 12px; }
+label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 750; }
+.key-row { display: flex; gap: 7px; }
+input { min-width: 0; flex: 1; padding: 11px; border: 1px solid #2c3749; border-radius: 11px; color: inherit; background: #151d2a; outline: none; }
+input:focus { border-color: #368cff; box-shadow: 0 0 0 3px rgb(54 140 255 / 16%); }
+button { border: 0; border-radius: 11px; font: inherit; font-weight: 750; cursor: pointer; }
+.secondary { padding: 0 12px; color: #dce8fa; background: #222d3e; }
+.primary { width: 100%; margin-top: 11px; padding: 11px; color: white; background: linear-gradient(100deg, #1677ff, #7157ff); }
+#status { min-height: 18px; margin: 10px 0 0; color: #49d58a; font-size: 11px; }
+.privacy { margin: 14px 0 0; padding-top: 13px; border-top: 1px solid #252f40; font-size: 10px; }
