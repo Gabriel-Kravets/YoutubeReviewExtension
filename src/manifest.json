@@ -1,12 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "My Chrome Extension",
-  "version": "0.1.0",
-  "description": "My first Chrome extension.",
+  "name": "YouTube Review — Interface",
+  "version": "0.2.0",
+  "description": "A polished AI review panel displayed beside YouTube videos.",
   "action": {
     "default_popup": "popup.html"
   },
   "permissions": [
     "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["panel.js"],
+      "css": ["panel.css"],
+      "run_at": "document_idle"
+    }
   ]
 }
