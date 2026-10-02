@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Spoil It",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Spoil a YouTube video from its thumbnail before you click.",
   "icons": {
     "16": "icons/icon16.png",
