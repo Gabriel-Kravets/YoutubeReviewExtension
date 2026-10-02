@@ -23,8 +23,9 @@
         const header = createElement("header", "yr-header");
         const brand = createElement("div", "yr-brand");
         brand.append(createElement("span", "yr-brand-name", "Spoil It"));
-        const status = createElement("span", "yr-status", "Ready");
+        const status = createElement("span", "yr-status", "");
         status.dataset.role = "status";
+        status.hidden = true;
         header.append(brand, status);
 
         const hero = createElement("section", "yr-hero");
@@ -64,8 +65,29 @@
                     <p class="yr-summary" data-role="summary"></p>
                 </section>
 
+                <div class="yr-score-grid">
+                    <section class="yr-score-card yr-clickbait-card">
+                        <div class="yr-section-label">Clickbait probability</div>
+                        <strong class="yr-score-value" data-role="clickbait-score">—</strong>
+                        <div class="yr-meter"><i data-role="clickbait-meter"></i></div>
+                        <p data-role="clickbait-reason"></p>
+                    </section>
+
+                    <section class="yr-score-card yr-viewer-card">
+                        <div class="yr-section-label">Viewer mood</div>
+                        <strong class="yr-score-value" data-role="sentiment-label">—</strong>
+                        <div class="yr-sentiment-bar" data-role="sentiment-bar"></div>
+                        <p data-role="sentiment-detail"></p>
+                    </section>
+                </div>
+
+                <section class="yr-themes-card">
+                    <div class="yr-section-label">Recurring themes</div>
+                    <div class="yr-theme-list" data-role="themes"></div>
+                </section>
+
                 <section class="yr-detail-card">
-                    <div class="yr-section-label">Key points</div>
+                    <div class="yr-section-label">The useful bits</div>
                     <ul class="yr-takeaways" data-role="takeaways"></ul>
                 </section>
 
@@ -74,22 +96,8 @@
                     <ul class="yr-verdict" data-role="spoilers"></ul>
                 </section>
 
-                <section class="yr-detail-card yr-clickbait-card">
-                    <div class="yr-card-heading">
-                        <div class="yr-section-label">Clickbait check</div>
-                        <strong data-role="clickbait-score">—</strong>
-                    </div>
-                    <div class="yr-meter"><i data-role="clickbait-meter"></i></div>
-                    <p data-role="clickbait-reason"></p>
-                </section>
-
-                <section class="yr-viewer-card">
-                    <div class="yr-card-heading">
-                        <div class="yr-section-label">Viewer reaction</div>
-                        <strong data-role="sentiment-label">—</strong>
-                    </div>
-                    <div class="yr-sentiment-bar" data-role="sentiment-bar"></div>
-                    <p data-role="sentiment-detail"></p>
+                <section class="yr-consensus-card">
+                    <div class="yr-section-label">Viewer consensus</div>
                     <p class="yr-consensus" data-role="consensus"></p>
                 </section>
             </div>
@@ -141,8 +149,10 @@
             return;
         }
         panel.dataset.state = state;
-        const labels = {ready: "Ready", loading: "Working", report: "Spoiled", error: "Try again"};
-        panel.querySelector('[data-role="status"]').textContent = labels[state] || "Ready";
+        const labels = {loading: "Working", report: "Spoiled", error: "Try again"};
+        const status = panel.querySelector('[data-role="status"]');
+        status.textContent = labels[state] || "";
+        status.hidden = state === "ready";
         if (message) {
             const destination = panel.querySelector(state === "error" ? '[data-role="error-message"]' : '[data-role="loading-message"]');
             if (destination) {
@@ -156,6 +166,14 @@
         for (const value of values || []) {
             container.append(createElement("li", "", value));
         }
+    }
+
+    function fillThemes(container, values) {
+        container.replaceChildren();
+        for (const value of values || []) {
+            container.append(createElement("span", "yr-theme", value));
+        }
+        container.closest(".yr-themes-card").hidden = !container.childElementCount;
     }
 
     function renderReport(report, context = {}) {
@@ -182,6 +200,7 @@
         panel.querySelector('[data-role="sentiment-bar"]').style.setProperty("--neutral", `${sentiment.neutral || 0}%`);
 
         fillList(panel.querySelector('[data-role="takeaways"]'), report.keyTakeaways);
+        fillThemes(panel.querySelector('[data-role="themes"]'), report.recurringThemes);
         setText("consensus", report.viewerConsensus);
         fillList(panel.querySelector('[data-role="spoilers"]'), report.spoilers);
         setState("report");
