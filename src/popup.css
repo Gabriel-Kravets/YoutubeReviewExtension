@@ -7,6 +7,7 @@ h1 { margin: 0 0 7px; font-size: 24px; letter-spacing: -.035em; }
 .intro, .privacy { color: #9aa7ba; line-height: 1.45; }
 .intro { margin: 0 0 19px; font-size: 12px; }
 label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 750; }
+.field + .field { margin-top: 14px; }
 .key-row { display: flex; gap: 7px; }
 input { min-width: 0; flex: 1; padding: 11px; border: 1px solid #2c3749; border-radius: 11px; color: inherit; background: #151d2a; outline: none; }
 input:focus { border-color: #368cff; box-shadow: 0 0 0 3px rgb(54 140 255 / 16%); }

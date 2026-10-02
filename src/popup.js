@@ -1,28 +1,32 @@
 "use strict";
 
-const keyInput = document.getElementById("gemini-key");
-const showButton = document.getElementById("show-key");
+const openaiKeyInput = document.getElementById("openai-key");
+const supadataKeyInput = document.getElementById("supadata-key");
 const saveButton = document.getElementById("save-key");
 const statusElement = document.getElementById("status");
 
-chrome.storage.local.get("geminiApiKey", ({geminiApiKey}) => {
-    if (typeof geminiApiKey === "string") {
-        keyInput.value = geminiApiKey;
-    }
+chrome.storage.local.get(["openaiApiKey", "supadataApiKey"], ({openaiApiKey, supadataApiKey}) => {
+    openaiKeyInput.value = typeof openaiApiKey === "string" ? openaiApiKey : "";
+    supadataKeyInput.value = typeof supadataApiKey === "string" ? supadataApiKey : "";
 });
 
-showButton.addEventListener("click", () => {
-    const showing = keyInput.type === "text";
-    keyInput.type = showing ? "password" : "text";
-    showButton.textContent = showing ? "Show" : "Hide";
-});
+for (const button of document.querySelectorAll(".toggle")) {
+    button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.target);
+        const showing = input.type === "text";
+        input.type = showing ? "password" : "text";
+        button.textContent = showing ? "Show" : "Hide";
+    });
+}
 
 saveButton.addEventListener("click", async () => {
-    const geminiApiKey = keyInput.value.trim();
-    if (!geminiApiKey) {
-        statusElement.textContent = "Enter a Gemini API key first.";
+    const openaiApiKey = openaiKeyInput.value.trim();
+    const supadataApiKey = supadataKeyInput.value.trim();
+    if (!openaiApiKey || !supadataApiKey) {
+        statusElement.textContent = "Enter both API keys first.";
         return;
     }
-    await chrome.storage.local.set({geminiApiKey});
+    await chrome.storage.local.set({openaiApiKey, supadataApiKey});
+    await chrome.storage.local.remove("geminiApiKey");
     statusElement.textContent = "Saved in this browser profile.";
 });
