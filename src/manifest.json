@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Comment Review",
+  "name": "SpoilIt — Comment Collection",
   "version": "0.3.0",
   "description": "Fetch up to 50 relevant comments and replies from the current YouTube video.",
   "action": {
