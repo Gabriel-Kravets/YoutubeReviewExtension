@@ -63,6 +63,7 @@
                 <section class="yr-answer-card">
                     <div class="yr-section-label">The answer</div>
                     <p class="yr-summary" data-role="summary"></p>
+                    <p class="yr-answer-ending" data-role="answer-ending"></p>
                 </section>
 
                 <div class="yr-score-grid">
@@ -191,6 +192,9 @@
         panel.querySelector('[data-role="thumbnail"]').src = context.thumbnailUrl || "";
         setText("video-title", context.title || "YouTube video");
         setText("summary", report.summary);
+        const ending = (report.spoilers || [])[0] || "";
+        setText("answer-ending", ending.replace(/^ending\s*\/\s*verdict\s*:\s*/i, ""));
+        panel.querySelector('[data-role="answer-ending"]').hidden = !ending;
         setText("clickbait-score", `${clickbait}%`);
         panel.querySelector('[data-role="clickbait-meter"]').style.width = `${clickbait}%`;
         setText("clickbait-reason", report.clickbaitProbability?.reason);
