@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SpoilIt — Video Integration",
+  "name": "Spoil It — Video Integration",
   "version": "0.2.0",
   "description": "Collects public video context from the active YouTube page.",
   "action": {
